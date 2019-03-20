@@ -87,6 +87,12 @@ main() {
                 -H "${AUTH_HEADER}" \
                 -H "${API_HEADER}" \
                 "${API_URI}/repos/${GITHUB_REPOSITORY}/git/${other_ref%\"}"
+
+            if [[ "$?" == '0' ]]; then
+                echo "Succeed to delete $other_ref!"
+            else
+                echo "Failed to delete $other_ref (╯°□°）╯︵ ┻━┻"
+            fi
         fi
     done
 
