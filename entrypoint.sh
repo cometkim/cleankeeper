@@ -18,7 +18,7 @@ fi
 API_URI=https://api.github.com
 API_VERSION=v3
 API_HEADER="Accept: application/vnd.github.${API_VERSION}+json"
-AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
+AUTH_HEADER="Authorization: Token ${GITHUB_TOKEN}"
 
 REF_FULL_REGEX='refs/heads/greenkeeper/(monorepo\.)?([-_[:alnum:]]+)-([-_\.[:digit:]]+)'
 
@@ -27,23 +27,26 @@ filter_action() {
     local action=$(jq --raw-output .action "$GITHUB_EVENT_PATH")
     local merged=$(jq --raw-output .pull_request.merged "$GITHUB_EVENT_PATH")
 
-    if [[ "$action" == 'closed' ]] && [[ "$merged" == 'true' ]]; then
+    if [[ ! "$action" == 'closed' ]] || [[ ! "$merged" == 'true' ]]; then
         exit 78 # netural
     fi
 }
 
 main() {
-    if ! [[ $GITHUB_REF =~ $REF_FULL_REGEX ]]; then
-        exit 78
+    if ! [[ "$GITHUB_REF" =~ $REF_FULL_REGEX ]]; then
+        exit 78 # netural
     fi
 
     local ref_package_name="${BASH_REMATCH[2]}"
     local ref_package_version="${BASH_REMATCH[3]}"
 
+    echo "package name: $ref_package_name"
+    echo "package version: $ref_package_version"
+
     if semver_check "$ref_package_version"; then
-        echo "Semver detected"
-    elif [[ $ref_package_version =~ '[[:digit:]]+' ]]; then
-        echo "Numeric version detected"
+        echo "Determined $ref_package_version as semver format"
+    elif [[ "$ref_package_version" =~ [[:digit:]]+ ]]; then
+        echo "Determined $ref_package_version as numeric format"
 
         # Transform numeric version to semver-like
         ref_package_version="${ref_package_version}.0.0"
@@ -60,14 +63,25 @@ main() {
     )
 
     for other_ref in $other_refs; do
+        echo "Processing $other_ref..."
+
+        # Remove quotation marks
+        other_ref=${other_ref%\"}
+        other_ref=${other_ref#\"}
+
         [[ $other_ref =~ $REF_FULL_REGEX ]] && \
         local other_ref_package_version="${BASH_REMATCH[3]}"
 
+        if [[ "$other_ref_package_version" =~ [[:digit:]]+ ]]; then
+            other_ref_package_version="${other_ref_package_version}.0.0"
+        fi
+
         if ! semver_compare "$ref_package_version" "$other_ref_package_version"; then
-            curl -XDELETE -fsSL \
+            echo "Merged ref has greater version than this, deleting..."
+            curl -XDELETE -sSL \
                 -H "${AUTH_HEADER}" \
                 -H "${API_HEADER}" \
-                "${API_URI}/repos/${GITHUB_REPOSITORY}/git/refs/heads/${other_ref}"
+                "${API_URI}/repos/${GITHUB_REPOSITORY}/git/${other_ref%\"}"
         fi
     done
 
