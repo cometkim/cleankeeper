@@ -14,6 +14,7 @@ RUN apk add --no-cache \
     curl \
     jq
 
-COPY lib-semver.sh /lib-semver.sh
-COPY entrypoint.sh /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+WORKDIR /action
+COPY . .
+
+ENTRYPOINT ["/action/entrypoint.sh"]
