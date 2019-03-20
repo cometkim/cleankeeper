@@ -1,6 +1,8 @@
 #!/bin/bash
 
-. /action/lib-semver.sh
+PWD=$(pwd)
+
+. $PWD/lib-semver.sh
 
 set -e
 set -o pipefail
