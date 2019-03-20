@@ -20,7 +20,7 @@ API_VERSION=v3
 API_HEADER="Accept: application/vnd.github.${API_VERSION}+json"
 AUTH_HEADER="Authorization: Token ${GITHUB_TOKEN}"
 
-REF_FULL_REGEX='refs/heads/greenkeeper/(monorepo\.)?([-_[:alnum:]]+)-([-_\.[:digit:]]+)'
+REF_FULL_REGEX='refs/heads/greenkeeper/(monorepo\.)?([-_@[:alnum:]]+)-([-_\.[:digit:]]+)'
 
 filter_action() {
     # Filter events only "merged pull requests"
