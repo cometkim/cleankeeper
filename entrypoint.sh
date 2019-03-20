@@ -34,6 +34,13 @@ filter_action() {
     fi
 }
 
+numer_to_semver() {
+    if [[ "$1" =~ [[:digit:]]+ ]]; then
+        echo "${1}.0.0"
+    fi
+    echo "$1"
+}
+
 main() {
     if ! [[ "$GITHUB_REF" =~ $REF_FULL_REGEX ]]; then
         exit 78 # netural
@@ -51,7 +58,7 @@ main() {
         echo "Determined $ref_package_version as numeric format"
 
         # Transform numeric version to semver-like
-        ref_package_version="${ref_package_version}.0.0"
+        ref_package_version="$(numer_to_semver $ref_package_version)"
     else
         echo "Only semver or numeric version format is supported"
         exit 1
@@ -72,11 +79,7 @@ main() {
         other_ref=${other_ref#\"}
 
         [[ $other_ref =~ $REF_FULL_REGEX ]] && \
-        local other_ref_package_version="${BASH_REMATCH[3]}"
-
-        if [[ "$other_ref_package_version" =~ [[:digit:]]+ ]]; then
-            other_ref_package_version="${other_ref_package_version}.0.0"
-        fi
+        local other_ref_package_version="$(numer_to_semver ${BASH_REMATCH[3]})"
 
         if ! semver_compare "$ref_package_version" "$other_ref_package_version"; then
             echo "Merged ref has greater version than this, deleting..."
