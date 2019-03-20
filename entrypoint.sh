@@ -94,10 +94,12 @@ main() {
                 echo "Failed to delete $other_ref (╯°□°）╯︵ ┻━┻"
             fi
         fi
+
+        echo
     done
 
     exit 0
 }
 
-filter_action
+# filter_action
 main "$@"
