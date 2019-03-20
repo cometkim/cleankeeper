@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ./lib-semver.sh
+. /action/lib-semver.sh
 
 set -e
 set -o pipefail
