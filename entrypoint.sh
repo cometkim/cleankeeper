@@ -101,5 +101,5 @@ main() {
     exit 0
 }
 
-# filter_action
+filter_action
 main "$@"
