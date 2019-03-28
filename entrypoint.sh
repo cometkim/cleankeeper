@@ -66,7 +66,7 @@ main() {
         curl -XGET -fsSL \
             -H "${AUTH_HEADER}" \
             -H "${API_HEADER}" \
-            "${API_URI}/repos/${GITHUB_REPOSITORY}/git/refs" | jq ".[].ref" | grep "$ref_package_name" \
+            "${API_URI}/repos/${GITHUB_REPOSITORY}/git/refs?${PER_PAGE:-100}" | jq ".[].ref" | grep "$ref_package_name" \
     )
 
     for other_ref in $other_refs; do
