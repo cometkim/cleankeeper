@@ -22,5 +22,8 @@ workflow "My Workflow" {
 action "Cleankeeper" {
   uses = "cometkim/cleankeeper@master"
   secrets = ["GITHUB_TOKEN"]
+  env = {
+    PER_PAGE = "100"
+  }
 }
 ```
